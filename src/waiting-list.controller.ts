@@ -7,9 +7,10 @@ export class WaitingListController {
 
   @Post()
   async join(@Body('email') email: string) {
+    console.log('email', email);
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       throw new BadRequestException('Invalid email');
     }
     return this.waitingListService.addEmail(email);
   }
-} 
+}

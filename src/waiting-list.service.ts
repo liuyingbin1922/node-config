@@ -15,8 +15,9 @@ export class WaitingListService {
 
   async addEmail(email: string) {
     const { data, error } = await this.supabase
-      .from('waiting_list')
+      .from('waitinglist-list')
       .insert([{ email }]);
+
     if (error) {
       throw new InternalServerErrorException(error.message);
     }
