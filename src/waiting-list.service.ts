@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { createClient } from '@supabase/supabase-js';
 import { ConfigService } from '@nestjs/config';
 
@@ -14,10 +14,22 @@ export class WaitingListService {
   }
 
   async addEmail(email: string) {
-    const { data, error } = await this.supabase
+    // 先查重
+    const { data: existing, error: findError } = await this.supabase
+      .from('waitinglist-list')
+      .select('email')
+      .eq('email', email)
+      .maybeSingle();
+    if (findError) {
+      throw new InternalServerErrorException(findError.message);
+    }
+    if (existing) {
+      throw new BadRequestException('Email already joined the waiting list.');
+    }
+    // 插入
+    const { error } = await this.supabase
       .from('waitinglist-list')
       .insert([{ email }]);
-
     if (error) {
       throw new InternalServerErrorException(error.message);
     }
